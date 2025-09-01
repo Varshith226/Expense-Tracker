@@ -1,16 +1,14 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const colors = require('colors');
-const path = require('path');
 const connectDb = require('./config/connectDb');
 
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
+// Connect to database
 connectDb();
 
 // Initialize express app
@@ -22,27 +20,28 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use('/api/v1/users', require('./routes/userRoute'));
-app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
-app.use('/api/v1/bills', require('./routes/bills'));
+try {
+  app.use('/api/v1/users', require('./routes/userRoute'));
+  app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
+  app.use('/api/v1/bills', require('./routes/bills'));
+} catch (err) {
+  console.error('Error loading routes:', err.message);
+}
 
-// Default route for base URL
+// Default route
 app.get('/', (req, res) => {
-  res.send('🚀 Expense Tracker API is running!');
+  res.send('Expense Tracker API is running 🚀');
 });
 
-// Serve frontend (for production deployment)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client', 'build')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-  });
-}
+// Global error handler (helps with debugging)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong' });
+});
 
 // Port setup
 const PORT = process.env.PORT || 8080;
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`.bgGreen.white);
+  console.log(`Server running on port ${PORT}`.bgGreen.white);
 });
