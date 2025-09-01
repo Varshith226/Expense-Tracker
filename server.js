@@ -1,39 +1,38 @@
-const express = require('express')
-const cors = require('cors')
-const morgan = require('morgan')
-const dotenv =require('dotenv')
-const colors = require('colors')
-const connectDb = require('./config/connectDb')
-//config dot env
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const dotenv = require('dotenv');
+const colors = require('colors');
+const connectDb = require('./config/connectDb');
+
+// Load environment variables
 dotenv.config();
 
-//database call
+// Connect to database
 connectDb();
-//rest object
-const app = express()
 
-//middlewares
-app.use(morgan('dev'))
-app.use(express.json())
-app.use(cors())
+// Initialize express app
+const app = express();
 
-//routes
-//user routes
-app.use('/api/v1/users',require('./routes/userRoute'))
-//transaction routes
-app.use('/api/v1/transactions',require("./routes/transactionRoutes"));
+// Middleware
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(cors());
 
-// after other requires
-const billsRoute = require("./routes/bills");
+// Routes
+app.use('/api/v1/users', require('./routes/userRoute'));
+app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
+app.use('/api/v1/bills', require('./routes/bills'));
 
-// after app.use('/api/v1/transactions', ...)
-app.use("/api/v1/bills", billsRoute);
+// Default route for base URL
+app.get('/', (req, res) => {
+  res.send('Expense Tracker API is running 🚀');
+});
 
+// Port setup
+const PORT = process.env.PORT || 8080;
 
-//port
-const PORT = 8080 || process.env.PORT
-
-//listen server
-app.listen(PORT, () =>{
-    console.log(`Server running on port ${PORT}`);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`.bgGreen.white);
 });
