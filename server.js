@@ -1,14 +1,16 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const colors = require('colors');
+const path = require('path');
 const connectDb = require('./config/connectDb');
 
 // Load environment variables
 dotenv.config();
 
-// Connect to database
+// Connect to MongoDB
 connectDb();
 
 // Initialize express app
@@ -26,13 +28,21 @@ app.use('/api/v1/bills', require('./routes/bills'));
 
 // Default route for base URL
 app.get('/', (req, res) => {
-  res.send('Expense Tracker API is running 🚀');
+  res.send('🚀 Expense Tracker API is running!');
 });
+
+// Serve frontend (for production deployment)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client', 'build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
 // Port setup
 const PORT = process.env.PORT || 8080;
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`.bgGreen.white);
+  console.log(`✅ Server running on port ${PORT}`.bgGreen.white);
 });
