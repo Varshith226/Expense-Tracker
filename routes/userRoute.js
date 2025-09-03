@@ -1,13 +1,27 @@
-const express = require('express')
-const { loginController, registerController } = require('../controllers/userController')
+const express = require('express');
+const {
+  loginController,
+  registerController,
+} = require('../controllers/userController');
 
-//router object
-const router = express.Router()
+const router = express.Router();
 
-//routers
-//POST ||LOGIN
-router.post('/login', loginController)
+// ✅ Login route
+router.post('/login', async (req, res, next) => {
+  try {
+    await loginController(req, res);
+  } catch (err) {
+    next(err); // Pass errors to global error handler
+  }
+});
 
-//POST || REGISTER USER
-router.post('/register',registerController);
-module.exports = router
+// ✅ Register route
+router.post('/register', async (req, res, next) => {
+  try {
+    await registerController(req, res);
+  } catch (err) {
+    next(err);
+  }
+});
+
+module.exports = router;

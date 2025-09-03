@@ -17,25 +17,25 @@ const app = express();
 // Middleware
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*', // Change this to your frontend domain in production
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 // Routes
-try {
-  app.use('/api/v1/users', require('./routes/userRoute'));
-  app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
-  app.use('/api/v1/bills', require('./routes/bills'));
-} catch (err) {
-  console.error('Error loading routes:', err.message);
-}
+app.use('/api/v1/users', require('./routes/userRoute'));
+app.use('/api/v1/transactions', require('./routes/transactionRoutes'));
+app.use('/api/v1/bills', require('./routes/bills'));
 
-// Default route
+// Health check
 app.get('/', (req, res) => {
-  res.send('Expense Tracker API is running 🚀');
+  res.status(200).send('Expense Tracker API is running 🚀');
 });
 
-// Global error handler (helps with debugging)
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(err.stack.red);
   res.status(500).json({ error: 'Something went wrong' });
 });
 
@@ -43,5 +43,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`.bgGreen.white);
+  console.log(`✅ Server running on port ${PORT}`.bgGreen.white);
 });
