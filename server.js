@@ -3,6 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const colors = require('colors');
+const path = require('path');
+const favicon = require('serve-favicon'); // Import serve-favicon middleware
 const connectDb = require('./config/connectDb');
 
 // Load environment variables
@@ -22,6 +24,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
+
+// Serve favicon (make sure favicon.ico is in 'public' folder in backend root)
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // Routes
 app.use('/api/v1/users', require('./routes/userRoute'));
