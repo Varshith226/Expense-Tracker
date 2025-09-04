@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const colors = require('colors');
 const path = require('path');
-const favicon = require('serve-favicon'); // Import serve-favicon middleware
+const favicon = require('serve-favicon');
+const fs = require('fs');
 const connectDb = require('./config/connectDb');
 
 // Load environment variables
@@ -20,13 +21,18 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors({
-  origin: '*', // Change this to your frontend domain in production
+  origin: '*', // Change to your frontend origin in production
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
 
-// Serve favicon (make sure favicon.ico is in 'public' folder in backend root)
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// Serve favicon if it exists in public folder, else skip to avoid crashes
+const faviconPath = path.join(__dirname, 'public', 'favicon.ico');
+if (fs.existsSync(faviconPath)) {
+  app.use(favicon(faviconPath));
+} else {
+  console.warn('⚠️  Favicon not found, skipping favicon middleware.');
+}
 
 // Routes
 app.use('/api/v1/users', require('./routes/userRoute'));
@@ -44,7 +50,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong' });
 });
 
-// Port setup
+// Port configuration
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
